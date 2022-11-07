@@ -1,18 +1,22 @@
+import numpy as np
 import pandas as pd
-
 from util.dataset import Dataset
+
 """
 ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
         'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked']
+시각화를 통해 얻은 상관관계 변수(variable = feature= column)는
+Pclass
+Sex
+Age
+Fare
+Embarked
  === null 값 ===
  Age            177
  Cabin          687
  Embarked         2
 """
-# 시각화를 통해 얻은 상관관계 변수들 (varuable = feature = column)는
-# pclass, sex, age, fare (기준은 survived)
-
-class Titanicmodel(object):
+class TitanicModel(object):
 
     dataset = Dataset()
 
@@ -20,13 +24,13 @@ class Titanicmodel(object):
         pass
 
     def __str__(self):
-        b = self.new_model(self.dataset.fname)
-        return  f' Train Type: {type(b)}\n'\
-                f' Train columns: {b.columns}\n'\
-                f' Train head: {b.head()}\n'\
-                f' Train null의 갯수: {b.isnull().sum()}\n'
+        b = self.new_model(fname=self.dataset.fname)
+        return f'Train type: {type(b)}\n' \
+               f'Train columns: {b.columns}\n' \
+               f'Train head : {b.head()}\n' \
+               f'Train null의 갯수 : {b.isnull().sum()}'
 
-    def preprocese(self):
+    def preprocess(self):
         pass
 
     def new_model(self, fname) -> object:
@@ -35,9 +39,9 @@ class Titanicmodel(object):
         this.fname = fname
         return pd.read_csv(this.context + this.fname)
 
-    @staticmethod # s, getter 받을때
-    def create_train(this) -> object:
-        return this.train.drop('Survived', axis = 1) # dorp 0가로 1세로
+    @staticmethod
+    def create_train(this)->object:
+        return this.train.drop('Survived', axis = 1)
 
     @staticmethod
     def create_label(this) -> object:
@@ -46,41 +50,71 @@ class Titanicmodel(object):
     @staticmethod
     def drop_features(this, *feature) -> object:
         for i in feature:
-            this.train = this.train.drop(i,axis = 1)
-            this.test = this.train.drop(i,axis = 1)
+            this.train = this.train.drop(i, axis = 1)
+            this.test = this.test.drop(i, axis = 1)
         return this
 
     @staticmethod
-    def sex_nominal(this)-> object: #female, male
-        # gender_mapping = {"male" : 0, "female" : 1}
-        for i in [this.train, this.test]:
+    def sex_norminal(this)-> object: #  female -> 1 , male -> 0
+        for i in [this.train,this.test]:
             i['Gender'] = i['Sex'].map({"male" : 0, "female" : 1})
         return this
 
     @staticmethod
-    def age_ordinal(this)-> object: # 연령대 10,20,30
+    def age_ordinal(this)-> object: # 연령대 10대, 20대, 30대
+        for i in [this.train,this.test]:
+            i["Age"] = i["Age"].fillna(-0.5)
+        bins = [-1,0,5,12,18,24,35,68,np.inf]
+        labels = ['Unknown', 'Baby', 'Child', 'Teenager', 'Student', 'Young Adult', 'Adult', 'Senior']
+        age_mapping = {'Unknown': 0, 'Baby': 1, 'Child': 2, 'Teenager': 3, 'Student': 4,
+                             'Young Adult': 5, 'Adult': 6, 'Senior': 7}
+        for i in [this.train,this.test]:
+            i['AgeGroup'] = pd.cut(i['Age'], bins=bins, labels=labels)
+            i['AgeGroup'] = i['AgeGroup'].map(age_mapping)
         return this
 
     @staticmethod
-    def fare_ordinal(this)-> object: # 비싼것, 보통, 저렴
-        for i in [this.train, this.test]:
-            i['FareBand'] = pd.qcut(i['Fare'], 4, labels=[1, 2, 3, 4])
+    def fare_ordinal(this) -> object: # 4등분 pd.qcut() 사용
+        for i in [this.train,this.test]:
+            i['FareBand'] = pd.qcut(i['Fare'], 4, labels={1, 2, 3, 4})
         return this
 
     @staticmethod
-    def embarked_nominal(this)-> object:
-        this.train = this.train.fillna({'Embarked':'S'}) # 빈 공간이 있으면 집어넣어라 (널값 처리)
-        this.test = this.test.fillna({'Embarked':'S'})
-        for i in [this.train, this.test]:
-            i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q" : 3}) #어사이먼
+    def embarked_norminal(this)-> object: # 승선항구 S, C, Q
+        this.train = this.train.fillna({'Embarked':'S'})
+        this.test = this.test.fillna({'Embarked': 'S'})
+        for i in [this.train,this.test]:
+            i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q":3})
         return this
 
-if __name__=="__main__":
-    t = Titanicmodel()
-    this = Dataset
-    this.train = t.new_model('train.csv')
+    @staticmethod
+    def title_norminal(this)-> object:
+        combine = [this.train, this.test]
+        for i in combine:
+            i['Title'] = i.Name.str.extract('([A-Za-z]+)\.', expand=False)
+        for i in combine:
+            i['Title'] = i['Title'].replace(['Countess', 'Lady', 'Sir'], 'Royal')
+            i['Title'] = i['Title'].replace(['Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Jonkheer', 'Dona', 'Mme'], 'Rare')
+            i['Title'] = i['Title'].replace('Mlle', 'Mr')
+            i['Title'] = i['Title'].replace('Ms', 'Miss')
+            i['Title'] = i['Title'].fillna(0)
+            i['Title'] = i['Title'].map({
+                'Mr': 1,
+                'Miss': 2,
+                'Mrs' : 3,
+                'Master' : 4,
+                'Royal' : 5,
+                'Rare' : 6
+            })
+        return this
+
+
+if __name__ == '__main__':
+    t = TitanicModel()
+    this = Dataset()
+    this.train = TitanicModel().new_model('train.csv')
     this.test = t.new_model('test.csv')
-    this = Titanicmodel.embarked_nominal(this)
-    print(this.train.head())
-    print(this.train.tail())
+    this = TitanicModel.embarked_norminal(this)
     print(this.train.columns)
+    print(f"null 갯수: {this.train.isnull().sum()}")
+    print(this.train.head(3))

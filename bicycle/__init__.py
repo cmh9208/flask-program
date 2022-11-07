@@ -1,9 +1,9 @@
-from bicycle.views import Bicyclecontroller
+from bicycle.views import BicycleController
 from util.common import Common
-from bicycle.models import Bicyclemodel
+from bicycle.models import BicycleModel
 
 if __name__=="__main__":
-    api = Bicyclecontroller()
+    api = BicycleController()
     while True:
         menu = Common.print(["종료", "시각화", "데이터 처리", "머신러닝", "배포",])
         if menu == "0":
@@ -11,7 +11,7 @@ if __name__=="__main__":
             break
         elif menu == "1":
             print(" ### 시각화 ### ")
-            model = Bicyclemodel()
+            model = BicycleModel()
             b = model.new_model("train.csv")
             print(f' Train Type: {type(b)}')
             print(f' Train columns: {b.columns}')

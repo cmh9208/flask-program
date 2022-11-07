@@ -1,8 +1,8 @@
-from bicycle.models import Bicyclemodel
+from bicycle.models import BicycleModel
 
-class Bicyclecontroller(object):
+class BicycleController(object):
 
-    bicycle = Bicyclemodel()
+    bicycle = BicycleModel()
     def __init__(self):
         pass
 

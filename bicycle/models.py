@@ -1,7 +1,7 @@
 from util.dataset import Dataset
 import pandas as pd
 
-class Bicyclemodel(object):
+class BicycleModel(object):
 
     dataset = Dataset()
 
