@@ -1,25 +1,71 @@
+from bs4 import BeautifulSoup
+from future.backports import urllib
+import urllib.request as urllib
 from urllib.request import urlopen
 
-from bs4 import BeautifulSoup
-
-from scrapper import MusicRanking
-
-
 def BugsMusic(arg):
-    arg = MusicRanking()
-    soup = BeautifulSoup(urlopen(arg.url), 'lxml')
-    title = {"class": arg.class_name[0]}
-    artist = {"class": arg.class_name[1]}
-    titles = soup.find_all(name=arg.class_name, attrs=title)
-    artists = soup.find_all(name=arg.class_name, attrs=artist)
+    # soup = BeautifulSoup(urlopen(arg.domain + arg.query_string), arg.parser)
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    req = urllib.Request(arg.domain + arg.query_string, headers=headers)
+    a = urllib.urlopen(req)
+    b = a.read().decode('utf-8')
+    soup = BeautifulSoup(b, arg.parser)
+    title = {"class": arg.class_names[0]}
+    artist = {"class": arg.class_names[1]}
+    titles = soup.find_all(name=arg.tag_name, attrs=title)
+    artists = soup.find_all(name=arg.tag_name, attrs=artist)
 
     # 디버깅 용
-    [print(f"{k}. {i.find('a').text} : {j.find('a').text}")
-     for i, j, k in zip(titles, artists, range(1, 100))]
-    # dict 로 변화(데이터 프레임은 딕셔너리로 바꿔줘야함 키값이 있어서)
-    for i in range(0, len(titles)):
-        arg.dic[arg.titles[i]] = arg.artists[i] #타이틀을 키로 아티스트를 벨류로
+    [print(f"{i}위 {j.find('a').text} : {k.find('a').text}")
+     for i, j, k in zip(range(1, len(titles)), titles, artists)]
+    '''
+    for i, j, k in zip(range(1, len(titles)), titles, artists):
+        print(f"{i}위 {j.find('a').text} : {k.find('a').text}")
+    '''
+    # dict 로 변환(데이터 프레임은 키값이 있어 딕셔너리로 바꾸어야함)
+
+    diction = {}
+    print("#" * 10)
+    print(len(titles))
+    for i, j in zip(titles, artists):
+        diction[j.find('a').text] = i.find('a').text
+    print(diction)
+    arg.diction = diction
 
     # csv 파일로 저장
-    arg.dict_to_datafname()
+    arg.dict_to_dataframe()
     arg.dataframe_to_csv()
+
+
+def MelonMusic(arg):
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    req = urllib.Request(arg.domain + arg.query_string, headers=headers)
+    a = urllib.urlopen(req)
+    b = a.read().decode('utf-8')
+    soup = BeautifulSoup(b, arg.parser)
+    title = {"class": arg.class_names[0]}
+    artist = {"class": arg.class_names[1]}
+    titles = soup.find_all(name=arg.tag_name, attrs=title)
+    artists = soup.find_all(name=arg.tag_name, attrs=artist)
+
+    # 디버깅 용
+    [print(f"{i}위 {j.find('a').text} : {k.find('a').text}")
+     for i, j, k in zip(range(1, len(titles)), titles, artists)]
+    '''
+    for i, j, k in zip(range(1, len(titles)), titles, artists):
+        print(f"{i}위 {j.find('a').text} : {k.find('a').text}")
+    '''
+    # dict 로 변환(데이터 프레임은 키값이 있어 딕셔너리로 바꾸어야함)
+
+    diction = {}
+    print("#" * 10)
+    print(len(titles))
+    for i, j in zip(titles, artists):
+        diction[j.find('a').text] = i.find('a').text
+    print(diction)
+    arg.diction = diction
+
+    # csv 파일로 저장
+    arg.dict_to_dataframe()
+    arg.dataframe_to_csv()
+

@@ -6,6 +6,50 @@
 3번 과일: 망고 가격: 5000원
 ********************************
 '''
+import pandas as pd
+
+
+def new_fruits_df():
+
+
+    ls1 = ['제품', '가격', '판매량']
+    ls2 = ['사과', '딸기', '수박']
+    ls3 = [1800, 1500, 3000]
+    ls4 = [24, 38, 13]
+    ls5 = []
+    ls5.append(ls2)
+    ls5.append(ls3)
+    ls5.append(ls4)
+    dc = {}
+    for i, j in enumerate(ls1):
+        dc[j] = ls1[i]
+        dc[j] = ls5[i]
+
+        print(dc)
+
+    df = pd.DataFrame.from_dict(dc) # orient='index' 컬럼에 인덱스를(디폴트)
+    print(df)
+
+
+    # df = pd.DataFrame(dc)
+
+
+if __name__=="__main__":
+    new_fruits_df()
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
 from util.common import Common
 
 class Fruits(object):
@@ -57,5 +101,5 @@ class Fruits(object):
                 print("잘못된 번호 입니다.")
 
 Fruits.main()
-
+'''
 
