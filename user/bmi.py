@@ -54,7 +54,7 @@ class Bmi(object):
 
     @staticmethod
     def new_bmi():
-        name = input("이름: ")
-        cm = float(input("키: "))
-        kg = float(input("몸무게: "))
-        return Bmi(name, cm, kg)
+        print('dddsfsffddsds')
+
+if __name__=="__main__":
+    Bmi.new_bmi()

@@ -1,41 +1,52 @@
-'''
-과일 판매상에서 메뉴를 등록하는 어플을 제작하고자 합니다.
-입력되는 값은 없다.
-다만 실행했을 때 출력되는 결과는 다음과 같다.
-
-3번 과일: 망고 가격: 5000원
-********************************
-'''
+import numpy as np
 import pandas as pd
 
-
 def new_fruits_df():
-
-
     ls1 = ['제품', '가격', '판매량']
     ls2 = ['사과', '딸기', '수박']
     ls3 = [1800, 1500, 3000]
     ls4 = [24, 38, 13]
-    ls5 = []
-    ls5.append(ls2)
-    ls5.append(ls3)
-    ls5.append(ls4)
-    dc = {}
+    ls5 = [ls2, ls3, ls4]
+    df = pd.DataFrame({j : ls5[i] for i, j in enumerate(ls1)})
+    print(df)
+    '''
     for i, j in enumerate(ls1):
         dc[j] = ls1[i]
         dc[j] = ls5[i]
-
-        print(dc)
-
-    df = pd.DataFrame.from_dict(dc) # orient='index' 컬럼에 인덱스를(디폴트)
+    df = pd.DataFrame.from_dict(dc)
+    # orient='index' 컬럼에 인덱스를(디폴트)
+    '''
+    print('가격평균: ' + str(df['가격'].mean()))
+    print('판매량 평균: ', sum(df['판매량'])/3)
+    print(df.drop('판매량', axis=1))
     print(df)
 
+MENUS = ["종료", "과일2D", "숫자2D"]
+from string import ascii_lowercase
 
-    # df = pd.DataFrame(dc)
+alphabet_list = list(ascii_lowercase)
 
+def new_number_2d():
+    df = pd.DataFrame(np.array([list(range(1, 11)),
+                                list(range(11, 21)),
+                                list(range(21, 31))]), columns = [alphabet_list[:10]])
+    print(df)
 
 if __name__=="__main__":
-    new_fruits_df()
+    while True:
+        print(MENUS)
+        menu = input("메뉴선택: ")
+        if menu == "0":
+            print("0번 종료")
+            break
+        elif menu == "1":
+            print("1번 과일2D")
+            new_number_2d()
+        elif menu == "2":
+            print("2번 숫자2D")
+        else:
+            print("해당메뉴 없음")
+
 
 
 

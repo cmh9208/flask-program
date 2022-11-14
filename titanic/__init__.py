@@ -1,6 +1,10 @@
 from titanic.template import Plot
 from titanic.views import TitanicController
 from util.common import Common
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 
 if __name__ == '__main__':
     api = TitanicController()
@@ -22,10 +26,19 @@ if __name__ == '__main__':
             print(this.train.head())
             print(this.train.columns)
         elif menu == "3":
+            rf = RandomForestClassifier()
+            dt = DecisionTreeClassifier()
+            lr = LogisticRegression()
+            svc = SVC()
             print(" ### 머신러닝 ### ")
-            df = api.learning('train.csv', 'test.csv')
+            api.learning('train.csv', 'test.csv', lr)
+            #랜덤포레스트: 83.28 %
+            #결정트리: 81.82 %
+            #로지스틱회귀: 77.89 %
+            #서포터 백터머신 80.7 %
         elif menu == "4":
             print(" ### 배포 ### ")
             df = api.submit('train.csv', 'test.csv')
         else:
             print(" ### 해당 메뉴 없음 ### ")
+
